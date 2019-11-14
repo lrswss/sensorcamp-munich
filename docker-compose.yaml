@@ -1,0 +1,73 @@
+version: "3"
+
+services:
+  postgresql:
+    image: bettwanze/postgis:9.6-2.3
+    volumes:
+      - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
+      - postgresqldata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  chirpstack-network-server:
+    image: bettwanze/chirpstack-network-server:3.4.1
+    volumes:
+      - ./configuration/chirpstack-network-server:/etc/chirpstack-network-server
+    depends_on:
+      - postgresql
+
+  chirpstack-application-server:
+    image: bettwanze/chirpstack-application-server:3.5.1
+    ports:
+      - 8000:8080
+    volumes:
+      - ./configuration/chirpstack-application-server:/etc/chirpstack-application-server
+    depends_on:
+      - postgresql
+
+  chirpstack-gateway-bridge:
+    image: bettwanze/chirpstack-gateway-bridge:3.4.1
+    ports:
+      - 1700:1700/udp
+    volumes:
+      - ./configuration/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge
+
+  frost:
+    image: bettwanze/frost-server-http:1.10.1
+    environment:
+      - serviceRootUrl=http://192.168.54.1:8080/FROST-Server
+      - http_cors_enable=true
+      - http_cors_allowed.origins=*
+      - persistence_db_driver=org.postgresql.Driver
+      - persistence_db_url=jdbc:postgresql://postgresql:5432/sensorthings
+      - persistence_db_username=frost
+      - persistence_db_password=HelloWorld
+      - persistence_autoUpdateDatabase=true
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgresql
+
+  redis:
+    image: redis:5-alpine
+    volumes:
+      - redisdata:/data
+
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - 1883:1883
+
+  node-red:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - "1880:1880"
+    volumes:
+      - nodereddata
+
+volumes:
+  postgresqldata:
+  nodereddata:
+  redisdata:

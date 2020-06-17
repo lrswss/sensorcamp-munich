@@ -1,6 +1,9 @@
 # See https://www.chirpstack.io/gateway-bridge/install/config/ for a full
 # configuration example and documentation.
 
+[integration]
+marshaler="json"
+
 [integration.mqtt.auth.generic]
 server="tcp://mosquitto:1883"
 username=""

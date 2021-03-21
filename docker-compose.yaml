@@ -2,22 +2,21 @@ version: "3"
 
 services:
   postgresql:
-    image: bettwanze/postgis:9.6-2.3
+    image: bettwanze/postgis:11-2.5
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
-      - postgresqldata:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
+      - postgresqldata:/var/lib/postgresql
 
   chirpstack-network-server:
-    image: bettwanze/chirpstack-network-server:3.4.1
+    image: bettwanze/chirpstack-network-server:3.12.2
     volumes:
       - ./configuration/chirpstack-network-server:/etc/chirpstack-network-server
     depends_on:
       - postgresql
+      - redis
 
   chirpstack-application-server:
-    image: bettwanze/chirpstack-application-server:3.5.1
+    image: bettwanze/chirpstack-application-server:3.14.0
     ports:
       - 8000:8080
     volumes:
@@ -26,22 +25,24 @@ services:
       - postgresql
 
   chirpstack-gateway-bridge:
-    image: bettwanze/chirpstack-gateway-bridge:3.4.1
+    image: bettwanze/chirpstack-gateway-bridge:3.10.0
     ports:
       - 1700:1700/udp
     volumes:
       - ./configuration/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge
+    depends_on:
+      - mosquitto
 
   frost:
-    image: bettwanze/frost-server-http:1.10.1
+    image: bettwanze/frost-server-http:1.13.0
     environment:
-      - serviceRootUrl=http://192.168.54.1:8080/FROST-Server
+      - serviceRootUrl=http://192.168.1.1:8080/FROST-Server
       - http_cors_enable=true
       - http_cors_allowed.origins=*
       - persistence_db_driver=org.postgresql.Driver
       - persistence_db_url=jdbc:postgresql://postgresql:5432/sensorthings
       - persistence_db_username=frost
-      - persistence_db_password=HelloWorld
+      - persistence_db_password=frost
       - persistence_autoUpdateDatabase=true
     ports:
       - 8080:8080
@@ -54,9 +55,11 @@ services:
       - redisdata:/data
 
   mosquitto:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:2
     ports:
       - 1883:1883
+    volumes:
+      - ./configuration/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   node-red:
     image: nodered/node-red:latest
@@ -65,7 +68,7 @@ services:
     ports:
       - "1880:1880"
     volumes:
-      - nodereddata
+      - nodereddata:/data
 
 volumes:
   postgresqldata:

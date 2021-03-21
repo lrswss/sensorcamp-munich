@@ -5,6 +5,6 @@
 marshaler="json"
 
 [integration.mqtt.auth.generic]
-server="tcp://mosquitto:1883"
+servers=["tcp://mosquitto:1883"]
 username=""
 password=""

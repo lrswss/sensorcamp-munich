@@ -37,4 +37,4 @@ full access to the internet, for example if you need to install additional Node-
 
 This stack was originally composed for a [barcamp](https://barcamptools.eu/SensorCamp/) session on
 LoRaWAN infrastructure presented on the "2. Fachtagung Sensordaten" on the 13./14.11.2019 in Munich
-and updated to recent ChirpStack components, FROST 1.13 and PostgreSQL/Postgis 11/2.5 in March 2021.
+and updated to recent ChirpStack components, FROST 1.14 and PostgreSQL/Postgis 11/2.5.1 in July 2021.

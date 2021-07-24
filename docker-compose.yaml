@@ -2,7 +2,7 @@ version: "3"
 
 services:
   postgresql:
-    image: bettwanze/postgis:11-2.5
+    image: bettwanze/postgis:11-2.5.1
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
       - postgresqldata:/var/lib/postgresql
@@ -34,11 +34,12 @@ services:
       - mosquitto
 
   frost:
-    image: bettwanze/frost-server-http:1.13.0
+    image: bettwanze/frost-server-http:1.14.0
     environment:
       - serviceRootUrl=http://192.168.1.1:8080/FROST-Server
       - http_cors_enable=true
       - http_cors_allowed.origins=*
+      - bus_busImplementationClass=de.fraunhofer.iosb.ilt.sta.messagebus.InternalMessageBus
       - persistence_db_driver=org.postgresql.Driver
       - persistence_db_url=jdbc:postgresql://postgresql:5432/sensorthings
       - persistence_db_username=frost
